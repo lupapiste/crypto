@@ -1,4 +1,4 @@
-(defproject lupapiste/crypto "0.1.1"
+(defproject lupapiste/crypto "0.1.2-SNAPSHOT"
  :description "Crypto with bouncycastle"
  :dependencies [[org.clojure/clojure "1.10.1"]
                 [commons-codec "1.10"]
