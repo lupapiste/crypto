@@ -1,5 +1,5 @@
 (defproject lupapiste/crypto "0.1.0"
- :description "Common stuff from Finnish SADe program"
+ :description "Crypto with bouncycastle"
  :dependencies [[org.clojure/clojure "1.10.1"]
                 [commons-codec "1.10"]
                 [crypto-random "1.2.0" :exclusions [commons-codec]]
