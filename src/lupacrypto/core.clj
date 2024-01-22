@@ -1,17 +1,21 @@
 (ns lupacrypto.core
-  (:require [crypto.random :as cr])
-  (:import [org.bouncycastle.crypto BufferedBlockCipher]
-           [org.bouncycastle.crypto.engines RijndaelEngine AESEngine]
+  (:import [java.security SecureRandom]
+           [java.util Base64 Base64$Decoder Base64$Encoder]
+           [org.bouncycastle.crypto BufferedBlockCipher]
+           [org.bouncycastle.crypto.engines AESEngine RijndaelEngine]
            [org.bouncycastle.crypto.modes CBCBlockCipher]
-           [org.bouncycastle.crypto.paddings PaddedBufferedBlockCipher ZeroBytePadding PKCS7Padding]
-           [org.bouncycastle.crypto.params KeyParameter ParametersWithIV]
-           [org.apache.commons.codec.binary Base64]))
+           [org.bouncycastle.crypto.paddings PKCS7Padding PaddedBufferedBlockCipher ZeroBytePadding]
+           [org.bouncycastle.crypto.params KeyParameter ParametersWithIV]))
+
+(set! *warn-on-reflection* true)
 
 (defn make-iv
   "Random bytes for initialization vector. Default is 32"
   ([] (make-iv 32))
-  ([bytes]
-   (cr/bytes bytes)))
+  ([num-bytes]
+   (let [result (byte-array num-bytes)]
+     (.nextBytes (SecureRandom.) result)
+     result)))
 
 (defn make-iv-128 []
   (make-iv 16))
@@ -54,8 +58,16 @@
 (defn str->bytes ^bytes [^String s] (.getBytes s "UTF-8"))
 (defn bytes->str ^String [^bytes b] (String. b "UTF-8"))
 
-(defn base64-encode [^bytes data] (Base64/encodeBase64 data))
-(defn base64-decode [^bytes data] (Base64/decodeBase64 data))
+(def ^:private ^Base64$Encoder b64-encoder (Base64/getEncoder))
+(def ^:private ^Base64$Decoder b64-decoder (Base64/getDecoder))
+
+(defn base64-encode ^bytes [^bytes data] (.encode b64-encoder data))
+(defn base64-decode ^bytes [^bytes data] (.decode b64-decoder data))
+
+(defn base64-random-bytes
+  "Generates a random buffer of `num-bytes` bytes and returns it as a Base64 encoded string"
+  [num-bytes]
+  (-> num-bytes make-iv base64-encode bytes->str))
 
 (defn url-encode [^String s] (java.net.URLEncoder/encode s "UTF-8"))
 
